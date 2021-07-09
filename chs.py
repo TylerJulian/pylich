@@ -1,19 +1,43 @@
+from time import sleep
 import chess
-import lichess.api
 import berserk
+from lichess.api import current_game, user
+import lichess_client
+from lichess.format import PGN, SINGLE_PGN, PYCHESS
+import datetime
+
 def main():
-    #requires a api token from https://lichess.org/account/oauth/token
-    #create a file named lichess.token and copy your api token into it.
-    with open('./lichess.token') as f:
-        token = f.read()
+    #connect to lichess
+    session, client = lichess_client.connect_client()
+    # get username
+    info = client.account.get()
+    username = info['id']
+    print('Your user id: ', username)
+    
+    print("Press enter to start")
+    input()
+    print("waiting for challenge")
 
-    #connects to lichess using lichess.
-    session = berserk.TokenSession(token)
-    client = berserk.Client(session)
+    for event in client.board.stream_incoming_events():
+        if event['type'] == 'challenge':
+            id = event['challenge']['id']
+            client.challenges.accept(id)
+            print("challenge found")
+
+            current_game = lichess_client.game(client, id, username, (id == client.games.export(event['challenge']['id'])['players']['white']['user']['id']),10)
+
+            current_game.start()
+
+            exit
+
+            
+            
+        elif event['type'] == 'gameStart':
+            print("gamestart")
+            
 
 
-
-
+            
     #board = chess.Board()
     #print(board)
 
