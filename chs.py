@@ -38,10 +38,11 @@ def main():
                 exit()
     if (mode == '2'):
         test = board.stream_incoming_events()
+        print("searching")
+        print(berserk.clients.Board.seek(client.board, 10, 0))
+        print("found")
         for event in test:
-            print("searching")
-            print(berserk.clients.Board.seek(client.board, 10, 0))
-            print("found")
+            
             print("game")
             if event['type'] == 'gameStart':
                 id = event['game']['id']
